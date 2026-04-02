@@ -6,8 +6,12 @@
   * For more info and help: https://bootstrapmade.com/php-email-form/
   */
 
-  // Replace contact@example.com with your real receiving email address
-  $receiving_email_address = 'contact@example.com';
+  // Load receiving email from config file (excluded from git)
+  if( file_exists($config = __DIR__ . '/config.php') ) {
+    include( $config );
+  } else {
+    die( 'Contact form is not configured. Please set up forms/config.php.' );
+  }
 
   if( file_exists($php_email_form = '../assets/vendor/php-email-form/php-email-form.php' )) {
     include( $php_email_form );
@@ -15,13 +19,28 @@
     die( 'Unable to load the "PHP Email Form" Library!');
   }
 
+  // Sanitize inputs
+  $name    = htmlspecialchars(strip_tags(trim($_POST['name']    ?? '')));
+  $email   = filter_var(trim($_POST['email']   ?? ''), FILTER_SANITIZE_EMAIL);
+  $subject = htmlspecialchars(strip_tags(trim($_POST['subject'] ?? '')));
+  $message = htmlspecialchars(strip_tags(trim($_POST['message'] ?? '')));
+
+  // Validate required fields
+  if( empty($name) || empty($email) || empty($subject) || empty($message) ) {
+    die('Please fill in all required fields.');
+  }
+
+  if( !filter_var($email, FILTER_VALIDATE_EMAIL) ) {
+    die('Invalid email address.');
+  }
+
   $contact = new PHP_Email_Form;
   $contact->ajax = true;
-  
+
   $contact->to = $receiving_email_address;
-  $contact->from_name = $_POST['name'];
-  $contact->from_email = $_POST['email'];
-  $contact->subject = $_POST['subject'];
+  $contact->from_name = $name;
+  $contact->from_email = $email;
+  $contact->subject = $subject;
 
   // Uncomment below code if you want to use SMTP to send emails. You need to enter your correct SMTP credentials
   /*
@@ -33,9 +52,9 @@
   );
   */
 
-  $contact->add_message( $_POST['name'], 'From');
-  $contact->add_message( $_POST['email'], 'Email');
-  $contact->add_message( $_POST['message'], 'Message', 10);
+  $contact->add_message( $name,    'From');
+  $contact->add_message( $email,   'Email');
+  $contact->add_message( $message, 'Message', 10);
 
   echo $contact->send();
 ?>

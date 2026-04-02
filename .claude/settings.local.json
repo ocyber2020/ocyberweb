@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find \"/c/Users/Vincent Ling/OneDrive - Orlando Cyber Security/Documents/GitHub/ocyberweb/assets/img\" -type f -exec ls -lh {} \\\\;)",
+      "Bash(du -sh assets/ forms/ *.html)",
+      "Bash(xargs wc:*)",
+      "Bash(find . -type f \\\\\\( -name \"*.html\" -o -name \"*.css\" \\\\\\) -exec grep -l \"!important\" {} \\\\;)"
+    ]
+  }
+}
